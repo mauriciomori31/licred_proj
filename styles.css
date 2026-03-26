@@ -236,6 +236,12 @@ a {
     color: var(--clr-primary);
 }
 
+.brand-logo {
+    height: 40px;
+    width: auto;
+    display: block;
+}
+
 .brand-icon {
     width: 28px;
     height: 28px;
@@ -559,12 +565,15 @@ input:focus {
     text-align: center;
     padding: 2rem;
 }
-.cover-design svg {
-    width: 48px;
-    height: 48px;
-    color: white;
+.cover-design img.book-logo {
+    height: 32px;
+    width: auto;
     margin-bottom: 1rem;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
+
 .book-title {
     font-family: var(--font-heading);
     font-size: 2rem;
