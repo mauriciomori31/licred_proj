@@ -101,18 +101,18 @@ document.addEventListener("DOMContentLoaded", () => {
             feather.replace();
 
             const toast = document.getElementById('toast');
+            toast.innerHTML = '<i data-feather="check-circle"></i> Seu arquivo será enviado para seu WhatsApp!';
             toast.classList.add('show');
             feather.replace();
-            setTimeout(() => toast.classList.remove('show'), 4000);
+            setTimeout(() => toast.classList.remove('show'), 5000);
 
             setTimeout(() => {
-                window.open('public/Guia_Licred_Protecao_Final_v3.pdf', '_blank');
                 btn.disabled = false;
                 btn.innerHTML = originalText;
                 btn.style.backgroundColor = '';
                 leadForm.reset();
                 feather.replace();
-            }, 1500);
+            }, 2000);
         });
     }
 
