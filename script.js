@@ -1,4 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // CSRF Token
+    const csrfToken = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let token = '';
+        for (let i = 0; i < 32; i++) token += chars.charAt(Math.floor(Math.random() * chars.length));
+        return token;
+    };
+
+    // Rate limiting
+    let lastSubmitTime = 0;
+    const RATE_LIMIT_MS = 5000;
+    const canSubmit = () => {
+        const now = Date.now();
+        if (now - lastSubmitTime < RATE_LIMIT_MS) return false;
+        lastSubmitTime = now;
+        return true;
+    };
+
+    // Input sanitization
+    const sanitizeInput = (str) => str.replace(/[<>]/g, '').trim();
+
     // Mobile performance optimization utilities
     const isMobileDevice = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -77,10 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (leadForm) {
         leadForm.addEventListener("submit", async (e) => {
             e.preventDefault();
+            if (!canSubmit()) {
+                alert("Por favor, aguarde 5 segundos antes de enviar novamente.");
+                return;
+            }
             const btn = leadForm.querySelector("button[type=submit]");
             const originalText = btn.innerHTML;
-            const nome = document.getElementById("guia_nome").value.trim();
-            const whatsapp = document.getElementById("guia_whatsapp").value.trim();
+            const nome = sanitizeInput(document.getElementById("guia_nome").value);
+            const whatsapp = sanitizeInput(document.getElementById("guia_whatsapp").value);
 
             btn.disabled = true;
             btn.innerHTML = '<i data-feather="loader" class="spin"></i> Enviando...';
@@ -89,8 +114,11 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 await fetch('https://webhookn8n.ntwsaas.app.br/webhook/gratis', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, whatsapp })
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken()
+                    },
+                    body: JSON.stringify({ nome, whatsapp, csrfToken: csrfToken() })
                 });
             } catch (err) {
                 console.log('Webhook erro:', err);
@@ -121,11 +149,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (contactForm) {
         contactForm.addEventListener("submit", async function(e) {
             e.preventDefault();
+            
+            if (!canSubmit()) {
+                alert("Por favor, aguarde 5 segundos antes de enviar novamente.");
+                return;
+            }
 
-            const nome = document.getElementById("contato_nome").value.trim();
-            const telefone = document.getElementById("contato_telefone").value.trim();
-            const email = document.getElementById("contato_email").value.trim();
-            const mensagem = document.getElementById("contato_mensagem").value.trim();
+            const nome = sanitizeInput(document.getElementById("contato_nome").value);
+            const telefone = sanitizeInput(document.getElementById("contato_telefone").value);
+            const email = sanitizeInput(document.getElementById("contato_email").value);
+            const mensagem = sanitizeInput(document.getElementById("contato_mensagem").value);
 
             if (!nome || !email) {
                 alert("Por favor, preencha nome e e-mail.");
@@ -141,8 +174,11 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const response = await fetch('https://webhookn8n.ntwsaas.app.br/webhook/contatolid', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, telefone, email, mensagem })
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken()
+                    },
+                    body: JSON.stringify({ nome, telefone, email, mensagem, csrfToken: csrfToken() })
                 });
 
                 btn.innerHTML = '<i data-feather="check"></i> Enviado com sucesso!';
